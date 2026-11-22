@@ -60,6 +60,90 @@
     clearTimeout(toast._t); toast._t = setTimeout(function () { el.hidden = true; }, 2200);
   }
 
+  /* ---------------- version check ---------------- */
+  var LIVE_CONFIG_URL = 'https://data.dtodo.cn/api/client/v1/config';
+  var vcheck = { status: 'idle', remote: null, http: 0, elapsed: 0, checkedAt: '', error: '' };
+  var V_LABEL = { idle: '未检测', checking: '检测中', ok: '已是最新', new: '版本有更新', fail: '检测失败' };
+
+  function vstate(s) { return '<span class="vstate ' + s + '"><i></i>' + esc(V_LABEL[s] || s) + '</span>'; }
+
+  function versionSummary() {
+    if (vcheck.status === 'checking') return '正在连接 data.dtodo.cn 检查版本…';
+    if (vcheck.status === 'fail') return '无法连接数据源：' + (vcheck.error || '网络不可达') + '，继续使用本地冻结快照，不影响查询。';
+    if (vcheck.status === 'new') return '线上已更新为 ' + (vcheck.remote ? vcheck.remote.version : '新版') + '，本地快照为 ' + D.meta.dataVersion + '，需要重新同步数据。';
+    if (vcheck.status === 'ok') return '本地快照 ' + D.meta.dataVersion + ' 与线上一致 · 耗时 ' + vcheck.elapsed + 'ms · ' + vcheck.checkedAt;
+    return '尚未检测版本';
+  }
+
+  function renderVersionUI() {
+    var st = $('#versionState'), ast = $('#aboutVersionState');
+    if (!st || !ast) return;
+    st.className = 'vstate ' + vcheck.status; st.innerHTML = '<i></i>' + V_LABEL[vcheck.status];
+    ast.className = 'vstate ' + vcheck.status; ast.innerHTML = '<i></i>' + V_LABEL[vcheck.status];
+    $('#aboutVersionText').textContent = versionSummary();
+    $('#versionPill').title = versionSummary();
+    if (!$('#versionModal').hidden) renderVersionModal();
+  }
+
+  function renderVersionModal() {
+    var rows = [
+      ['本地快照版本', D.meta.dataVersion],
+      ['线上数据版本', vcheck.remote ? vcheck.remote.version : '—'],
+      ['游戏版本', vcheck.remote ? vcheck.remote.patch : D.meta.patch],
+      ['上游生成时间', vcheck.remote ? vcheck.remote.generatedAt : D.meta.generatedAt],
+      ['检测结果', V_LABEL[vcheck.status]],
+      ['HTTP / 耗时', (vcheck.http || '—') + ' / ' + (vcheck.elapsed ? vcheck.elapsed + 'ms' : '—')],
+      ['检测时间', vcheck.checkedAt || '—']
+    ];
+    var h = '<div class="version-title">' + vstate(vcheck.status) + '<h2>版本检测</h2></div>' +
+      '<p class="version-summary">' + esc(versionSummary()) + '</p><div class="kv-list">' +
+      rows.map(function (r) { return '<div><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>'; }).join('') + '</div>' +
+      '<div class="version-actions"><button class="btn primary small" id="recheckModalBtn">重新检测</button>' +
+      '<button class="btn ghost small" id="goAboutBtn">查看数据来源</button></div>' +
+      '<p class="result-note">每次打开页面都会自动检测。只读取上游 config 的版本字段，不读取任何统计或胜率数据；检测失败时自动使用本地冻结快照。</p>';
+    $('#versionModalBody').innerHTML = h;
+    $('#recheckModalBtn').onclick = checkVersion;
+    $('#goAboutBtn').onclick = function () { $('#versionModal').hidden = true; switchView('about'); };
+  }
+
+  function checkVersion() {
+    vcheck.status = 'checking'; vcheck.error = '';
+    renderVersionUI();
+    if (typeof fetch !== 'function') { vcheck.status = 'fail'; vcheck.error = '浏览器不支持 fetch'; renderVersionUI(); return; }
+    var t0 = Date.now();
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 10000);
+    fetch(LIVE_CONFIG_URL, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
+      .then(function (r) { vcheck.http = r.status; if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (cfg) {
+        clearTimeout(timer);
+        vcheck.remote = { patch: cfg.gamePatch || '', version: cfg.dataVersion || '', generatedAt: cfg.generatedAt || '' };
+        vcheck.elapsed = Date.now() - t0;
+        vcheck.checkedAt = new Date().toLocaleString('zh-CN');
+        var changed = (vcheck.remote.version && vcheck.remote.version !== D.meta.dataVersion) ||
+                      (vcheck.remote.patch && vcheck.remote.patch !== D.meta.patch);
+        vcheck.status = changed ? 'new' : 'ok';
+        renderVersionUI();
+      })
+      .catch(function (e) {
+        clearTimeout(timer);
+        vcheck.status = 'fail';
+        vcheck.error = (e && e.name === 'AbortError') ? '检测超时' : ((e && e.message) || '网络不可达');
+        vcheck.elapsed = Date.now() - t0;
+        vcheck.checkedAt = new Date().toLocaleString('zh-CN');
+        renderVersionUI();
+      });
+  }
+
+  function initVersionCheck() {
+    $('#versionPill').addEventListener('click', function () { renderVersionModal(); $('#versionModal').hidden = false; });
+    $('#recheckBtn').addEventListener('click', checkVersion);
+    $$('[data-close-version]').forEach(function (el) {
+      el.addEventListener('click', function () { $('#versionModal').hidden = true; });
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('#versionModal').hidden = true; });
+  }
+
   /* ---------------- navigation ---------------- */
   function switchView(name) {
     state.view = name;
@@ -429,4 +513,6 @@
   initAugments();
   initDraft();
   renderAbout();
+  initVersionCheck();
+  checkVersion();
 })();

@@ -25,8 +25,10 @@
     </nav>
 
     <div class="top-right">
-      <span class="version-pill" id="topVersion">版本 —</span>
-      <span class="live-dot" title="本地冻结快照，离线可用"></span>
+      <button class="version-pill" id="versionPill" title="点击查看版本检测详情">
+        <span id="topVersion">版本 —</span>
+        <span class="vstate checking" id="versionState"><i></i>检测中</span>
+      </button>
     </div>
   </header>
 
@@ -175,6 +177,13 @@
       <div class="view-head">
         <div><div class="eyebrow"><span></span> DATA &amp; METHODOLOGY</div><h1>数据来源与口径</h1><p>这个页面用的数据是什么、怎么用、以及有哪些限制。</p></div>
       </div>
+      <div class="check-banner" id="versionDetail">
+        <div class="check-left">
+          <span class="vstate checking" id="aboutVersionState"><i></i>检测中</span>
+          <span id="aboutVersionText">正在连接数据源检查版本…</span>
+        </div>
+        <button class="btn ghost small" id="recheckBtn">重新检测</button>
+      </div>
       <div class="about-grid">
         <div class="panel about-main" id="aboutMeta"></div>
         <div class="panel about-side">
@@ -200,6 +209,14 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalName">
       <button class="modal-close" data-close-modal aria-label="关闭">×</button>
       <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="version-modal" id="versionModal" hidden>
+    <div class="modal-backdrop" data-close-version></div>
+    <div class="modal-card small" role="dialog" aria-modal="true">
+      <button class="modal-close" data-close-version aria-label="关闭">×</button>
+      <div id="versionModalBody"></div>
     </div>
   </div>
 

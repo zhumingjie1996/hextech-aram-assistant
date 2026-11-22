@@ -62,10 +62,21 @@ button { cursor: pointer; }
 .nav-item.active { color: var(--cyan); background: var(--cyan-dim); }
 .top-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .version-pill {
-  border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px;
-  color: var(--muted); font-size: 12px; letter-spacing: .3px;
+  display: inline-flex; align-items: center; gap: 10px;
+  border: 1px solid var(--line); border-radius: 999px; padding: 5px 8px 5px 13px;
+  background: transparent; color: var(--muted); font-size: 12px; letter-spacing: .3px;
 }
-.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); }
+.version-pill:hover { border-color: var(--cyan); }
+.vstate {
+  display: inline-flex; align-items: center; gap: 5px; border-radius: 999px;
+  padding: 2px 8px; font-size: 10px; font-weight: 700; white-space: nowrap;
+  background: rgba(255,255,255,.04); color: var(--muted);
+}
+.vstate i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.vstate.checking { color: var(--gold); }
+.vstate.ok { color: var(--cyan); background: var(--cyan-dim); }
+.vstate.new { color: var(--gold); background: rgba(240,185,11,.14); }
+.vstate.fail { color: var(--muted-2); }
 
 /* ---------- shell ---------- */
 .shell { position: relative; z-index: 1; max-width: 1720px; margin: 0 auto; padding: 0 38px 70px; }
@@ -333,6 +344,19 @@ button { cursor: pointer; }
 .log-row small { color: var(--muted-2); font-size: 9px; }
 
 /* ---------- about ---------- */
+.check-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: var(--panel); border: 1px solid var(--line-soft);
+  border-radius: var(--radius); padding: 13px 18px; margin-bottom: 16px;
+}
+.check-left { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted); }
+.version-modal .modal-card.small { width: min(480px, calc(100vw - 40px)); }
+.version-title h2 { margin: 10px 0 0; font-size: 19px; }
+.version-summary { color: var(--muted); font-size: 12px; line-height: 1.8; margin: 12px 0 18px; }
+.kv-list { border-top: 1px solid var(--line-soft); }
+.kv-list div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line-soft); font-size: 12px; }
+.kv-list span { color: var(--muted-2); }
+.version-actions { display: flex; gap: 8px; margin-top: 18px; }
 .about-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
 .about-main h2 { font-size: 15px; margin: 0 0 14px; }
 .meta-table { width: 100%; border-collapse: collapse; font-size: 12px; }
