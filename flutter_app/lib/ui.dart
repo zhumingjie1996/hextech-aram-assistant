@@ -1,4 +1,17 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+
+const String _cdnIconPrefix = 'https://cdn.dtodo.cn/hextech/';
+
+/// Web 端：把跨域 CDN 图标改写为站点同源的本地路径（由 base href 解析为
+/// /hextech-aram-assistant/ic/...），规避 CanvasKit 图片无 CORS 头被拦截的问题。
+/// 原生端：保留原始 CDN URL，行为不变。
+String resolveIconUrl(String url) {
+  if (kIsWeb && url.startsWith(_cdnIconPrefix)) {
+    return 'ic/${url.substring(_cdnIconPrefix.length)}';
+  }
+  return url;
+}
 
 class Palette {
   static const bg = Color(0xFF0B1119);
@@ -117,7 +130,7 @@ class NetIcon extends StatelessWidget {
         child: url.isEmpty
             ? Container(color: Palette.surface2)
             : Image.network(
-                url,
+                resolveIconUrl(url),
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => Container(
                   color: Palette.surface2,
