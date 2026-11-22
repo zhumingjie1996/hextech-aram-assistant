@@ -1,0 +1,11 @@
+{
+  "name": "海斗助手 · 出装与符文参考",
+  "short_name": "海斗助手",
+  "description": "ARAM Mayhem 出装与符文参考 Demo",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1119",
+  "theme_color": "#0b1119"
+}

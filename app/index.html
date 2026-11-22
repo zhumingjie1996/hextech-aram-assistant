@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>海斗助手 · 出装与符文参考</title>
+<meta name="theme-color" content="#0b1119">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="mark">HX</span>
+    <div>
+      <h1>海斗助手</h1>
+      <p>ARAM Mayhem · 出装与符文参考 Demo</p>
+    </div>
+  </div>
+  <div class="meta" id="metaBar"></div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="lookup">英雄查询</button>
+  <button class="tab" data-tab="draft">三选一助手</button>
+  <span class="tab-note">仅展示选取率、分级与理由 · 不展示胜率</span>
+</nav>
+
+<section class="live-bar" aria-label="在线数据直连">
+  <div class="live-head">
+    <span class="live-dot" id="liveDot"></span>
+    <div>
+      <b>在线数据直连</b>
+      <p>本页默认使用按版本冻结的本地快照（可离线）。上游接口允许浏览器跨域直连，点右侧按钮可实测线上真实响应；失败时自动回退本地快照。</p>
+    </div>
+  </div>
+  <div class="live-actions">
+    <button id="checkLive" class="ghost">检查线上版本</button>
+    <button id="fetchLive" class="ghost">拉取当前英雄实时数据</button>
+  </div>
+  <div id="liveStatus" class="live-status">尚未请求线上接口 · 当前显示本地冻结快照（版本见页首）</div>
+</section>
+
+<main>
+  <section id="lookup" class="page">
+    <div class="toolbar">
+      <input id="champSearch" type="search" placeholder="搜索英雄：中文名 / 称号 / 英文名" autocomplete="off">
+      <div class="chips" id="roleChips"></div>
+    </div>
+    <div class="lookup-layout">
+      <div class="left-col">
+        <div class="section-head"><h2>英雄列表</h2><span id="gridCount"></span></div>
+        <div id="champGrid" class="grid"></div>
+      </div>
+      <aside id="detailPanel" class="panel">
+        <div class="empty">选一个英雄，查看当前版本的出装与符文参考</div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="draft" class="page" hidden>
+    <div class="draft-intro">
+      <h2>三选一助手</h2>
+      <p>选好英雄、已拿到的符文和屏幕上的三张卡，给你每张卡的分级与理由。<strong>不替你做决定</strong>，最终选择在你。</p>
+    </div>
+    <div class="draft-form panel">
+      <label class="field">当前英雄<select id="draftChamp"></select></label>
+      <div class="field-title">已选符文（可留空，最多 3 个）</div>
+      <div class="select-row">
+        <label class="field"><select class="picked"></select></label>
+        <label class="field"><select class="picked"></select></label>
+        <label class="field"><select class="picked"></select></label>
+      </div>
+      <div class="field-title">屏幕上的三张候选卡</div>
+      <div class="select-row">
+        <label class="field"><select class="card"></select></label>
+        <label class="field"><select class="card"></select></label>
+        <label class="field"><select class="card"></select></label>
+      </div>
+      <button id="evalBtn" class="primary">生成参考</button>
+      <p id="draftHint" class="hint"></p>
+    </div>
+    <div id="draftResults" class="results"></div>
+  </section>
+</main>
+
+<footer>
+  <p>数据来源：国服公开只读快照（aramgg client api）与 Riot Data Dragon 静态资产；对局样本由第三方自行采集清洗，版本与数据日期见页首。</p>
+  <p class="legal">海斗助手 isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p>
+  <p class="legal">本页为演示原型，数据来自第三方公开样本，非 Riot 官方产品；仅展示选取率、分级与文字理由，不展示胜率。所有结论仅供参考。</p>
+</footer>
+
+<script src="data/data.js"></script>
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(function () {});
+}
+</script>
+</body>
+</html>

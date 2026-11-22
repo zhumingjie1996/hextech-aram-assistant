@@ -1,0 +1,18 @@
+# 临时探测产物与原始快照（可由 scripts/sync.py 重新生成）
+/_probe/
+/_raw/
+/data/
+
+# Flutter 构建产物与工具缓存
+/flutter_app/build/
+/flutter_app/.dart_tool/
+/flutter_app/.pub-cache/
+/flutter_app/coverage/
+
+# Python / 编辑器
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+.DS_Store
+*.log
