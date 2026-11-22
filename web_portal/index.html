@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="海克斯大乱斗数据工作台：查询英雄出装、强化符文推荐与三选一模拟。">
+  <title>海斗助手 · 海克斯大乱斗数据工作台</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" data-nav="home" role="button" tabindex="0">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" fill="none"><path d="M20 2 36 11v18L20 38 4 29V11L20 2Z" stroke="currentColor" stroke-width="2"/><path d="m20 9 10 6v11l-10 6-10-6V15l10-6Z" fill="currentColor" opacity=".18"/><path d="m14 24 6-10 6 10M17 20h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </span>
+      <span class="brand-text"><b>海斗助手</b><small>HEXTECH ARAM LAB</small></span>
+    </div>
+
+    <nav class="nav" id="mainNav" aria-label="主导航">
+      <button class="nav-item active" data-view="home">数据总览</button>
+      <button class="nav-item" data-view="champs">英雄榜单</button>
+      <button class="nav-item" data-view="augments">符文图鉴</button>
+      <button class="nav-item" data-view="draft">三选一模拟</button>
+      <button class="nav-item" data-view="about">数据来源</button>
+    </nav>
+
+    <div class="top-right">
+      <span class="version-pill" id="topVersion">版本 —</span>
+      <span class="live-dot" title="本地冻结快照，离线可用"></span>
+    </div>
+  </header>
+
+  <main class="shell">
+
+    <!-- ============ 数据总览 ============ -->
+    <section class="view active" id="view-home">
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow"><span></span> ARAM : MAYHEM · DATA WORKSPACE</div>
+          <h1>海克斯大乱斗<br><em>数据工作台</em></h1>
+          <p>按当前版本整理英雄出装、强化符文适配与三选一决策参考。所有结论基于公开对局样本，只看分级、选取率与样本量，不展示胜率。</p>
+          <div class="hero-actions">
+            <button class="btn primary" data-jump="champs">查询英雄出装 <span>→</span></button>
+            <button class="btn ghost" data-jump="draft">打开三选一模拟</button>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="orb orb-a"></div><div class="orb orb-b"></div>
+          <div class="hex-stack">
+            <div class="hex-card h1"><span>TIER</span><b>S</b><small>强势</small></div>
+            <div class="hex-card h2"><span>PICK</span><b>14.1%</b><small>选取率</small></div>
+            <div class="hex-card h3"><span>DATA</span><b>16.23</b><small>版本</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-row" id="statRow"></div>
+
+      <div class="home-cols">
+        <div class="panel">
+          <div class="panel-head"><h2>版本强势英雄</h2><button class="link-btn" data-jump="champs">查看完整榜单 →</button></div>
+          <div class="rank-list" id="homeTopChamps"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>高频强化符文</h2><button class="link-btn" data-jump="augments">进入图鉴 →</button></div>
+          <div class="rank-list" id="homeTopAugs"></div>
+        </div>
+        <div class="panel note-panel">
+          <div class="panel-head"><h2>关于这份数据</h2></div>
+          <div class="note-body">
+            <p><b>版本</b><span id="homePatch">—</span></p>
+            <p><b>快照</b><span id="homeVersion">—</span></p>
+            <p><b>数据日期</b><span id="homeDate">—</span></p>
+            <p><b>来源</b><span id="homeSource">—</span></p>
+            <hr>
+            <p class="disclaimer">第三方公开样本整理，<b>非 Riot Games 官方产品，未获官方背书</b>。分级与推荐仅供参考，请结合阵容自行判断。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row" id="featureRow"></div>
+    </section>
+
+    <!-- ============ 英雄榜单 ============ -->
+    <section class="view" id="view-champs">
+      <div class="view-head">
+        <div><div class="eyebrow"><span></span> CHAMPION INDEX</div><h1>英雄榜单</h1><p>按职业与分级筛选，查看每个英雄的出装、技能与符文适配。</p></div>
+        <div class="head-count" id="champCount">—</div>
+      </div>
+
+      <div class="workbench">
+        <aside class="filter-rail">
+          <label class="field-label">搜索英雄</label>
+          <div class="search-box"><input id="champSearch" type="search" placeholder="名称 / 称号 / 英文" autocomplete="off"></div>
+
+          <label class="field-label">职业定位</label>
+          <div class="chip-wrap" id="roleChips"></div>
+
+          <label class="field-label">适配分级</label>
+          <div class="chip-wrap" id="tierChips"></div>
+
+          <label class="field-label">排序方式</label>
+          <select id="champSort" class="select">
+            <option value="tier">分级优先</option>
+            <option value="pick">选取率优先</option>
+            <option value="name">名称排序</option>
+          </select>
+
+          <button class="btn ghost block" id="resetFilters">重置筛选</button>
+          <div class="rail-note">点击英雄卡片，右侧展开完整详情。</div>
+        </aside>
+
+        <div class="grid-area">
+          <div class="grid-bar"><span id="gridMeta">—</span><span class="legend"><i class="dot s"></i>S 强势 <i class="dot a"></i>A 优选 <i class="dot b"></i>B 可用</span></div>
+          <div class="champ-grid" id="champGrid"></div>
+        </div>
+
+        <aside class="detail-rail" id="detailPanel">
+          <div class="detail-empty">
+            <div class="empty-icon">◇</div>
+            <h3>选择一位英雄</h3>
+            <p>这里会显示该英雄的核心出装、召唤师技能、技能加点与强化符文推荐。</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ 符文图鉴 ============ -->
+    <section class="view" id="view-augments">
+      <div class="view-head">
+        <div><div class="eyebrow"><span></span> AUGMENT CODEX</div><h1>强化符文图鉴</h1><p>234 个强化符文的完整资料，按稀有度与选取率浏览。</p></div>
+        <div class="head-count" id="augCount">—</div>
+      </div>
+      <div class="filter-inline">
+        <div class="search-box wide"><input id="augSearch" type="search" placeholder="搜索符文名称或效果描述" autocomplete="off"></div>
+        <div class="chip-wrap" id="rarityChips"></div>
+        <select id="augSort" class="select">
+          <option value="pick">按选取率</option>
+          <option value="tier">按适配分级</option>
+          <option value="name">按名称</option>
+        </select>
+      </div>
+      <div class="aug-grid" id="augGrid"></div>
+    </section>
+
+    <!-- ============ 三选一模拟 ============ -->
+    <section class="view" id="view-draft">
+      <div class="view-head">
+        <div><div class="eyebrow"><span></span> AUGMENT DRAFT SIMULATOR</div><h1>三选一模拟</h1><p>选择英雄后，按该英雄的符文适配数据模拟三轮三选一。</p></div>
+      </div>
+      <div class="draft-layout">
+        <aside class="panel draft-pick">
+          <div class="panel-head"><h2>1 · 选择英雄</h2></div>
+          <div class="search-box"><input id="draftSearch" type="search" placeholder="搜索英雄" autocomplete="off"></div>
+          <div class="draft-champ-list" id="draftChampList"></div>
+        </aside>
+        <div class="panel draft-stage">
+          <div class="panel-head">
+            <h2 id="draftTitle">2 · 本轮选择</h2>
+            <button class="btn ghost small" id="rerollBtn">重新随机</button>
+          </div>
+          <div class="draft-target" id="draftTarget"></div>
+          <div class="draft-cards" id="draftCards"></div>
+          <p class="draft-hint">卡片按该英雄的适配分级与选取率加权抽取，仅用于决策练习，不代表游戏内真实发放结果。</p>
+        </div>
+        <aside class="panel draft-log">
+          <div class="panel-head"><h2>3 · 已选记录</h2><button class="link-btn" id="clearDraft">清空</button></div>
+          <div id="draftLog"><div class="log-empty">还没有选择记录</div></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ 数据来源 ============ -->
+    <section class="view" id="view-about">
+      <div class="view-head">
+        <div><div class="eyebrow"><span></span> DATA &amp; METHODOLOGY</div><h1>数据来源与口径</h1><p>这个页面用的数据是什么、怎么用、以及有哪些限制。</p></div>
+      </div>
+      <div class="about-grid">
+        <div class="panel about-main" id="aboutMeta"></div>
+        <div class="panel about-side">
+          <div class="panel-head"><h2>合规口径</h2></div>
+          <ul class="policy-list">
+            <li>只展示 <b>适配分级 / 选取率 / 样本量 / 文字理由</b>。</li>
+            <li>不展示胜率、调整胜率、胜场等结论性指标。</li>
+            <li>数据来自第三方公开只读快照，可能存在采样偏差。</li>
+            <li>本项目为个人学习与演示用途，<b>非 Riot Games 官方产品，未获官方背书</b>。</li>
+          </ul>
+          <div class="about-actions">
+            <button class="btn ghost block" data-jump="champs">去查英雄</button>
+            <button class="btn ghost block" data-jump="augments">浏览符文</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="aug-modal" id="augModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalName">
+      <button class="modal-close" data-close-modal aria-label="关闭">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <footer class="footer">
+    <span>海斗助手 · HEXTECH ARAM LAB</span>
+    <span id="footerMeta">—</span>
+    <span>非 Riot Games 官方产品 · 数据仅供参考</span>
+  </footer>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
