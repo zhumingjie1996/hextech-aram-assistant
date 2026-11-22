@@ -6,11 +6,18 @@
 
 > 本项目为个人学习与演示用途，**非 Riot Games 官方产品，也未获得 Riot 官方背书**。
 
+## 在线 Web 版本
+
+**https://zhumingjie1996.github.io/hextech-aram-assistant/**
+
+由 GitHub Pages 从 `main` 分支的 `/docs` 目录发布，内容是 Flutter Web 构建产物（含完整离线数据），手机浏览器可直接打开。仓库设置：Settings → Pages → Source = Deploy from a branch / main /docs 目录。
+
 ## 目录结构
 
 | 路径 | 说明 |
 |---|---|
 | `flutter_app/` | **Flutter 主工程**（Android / iOS / Web，零第三方运行时依赖）。数据打包在 `assets/data/hex_data.json`，可完全离线运行（图标需联网） |
+| `docs/` | **GitHub Pages 发布目录**（Flutter Web 构建产物，`base-href=/hextech-aram-assistant/`）。更新命令见下方「更新线上 Web 版本」 |
 | `app/` | 纯静态网页 Demo（英雄查询 + 三选一助手 + 在线数据直连探测），双击 `index.html` 即可打开 |
 | `app/prototype/` | 移动端 App 高保真可点击原型（手机外框、5 个主屏、详情页、底部选择器） |
 | `app/data/data.js` | 网页端共用的清洗后数据（由 `scripts/build_data.py` 生成） |
@@ -83,4 +90,21 @@ node scripts/smoke_test.js           # 网页 Demo 逻辑冒烟测试
 node scripts/prototype_smoke.js      # 原型逻辑冒烟测试
 python scripts/static_check.py       # 原型静态一致性检查
 node scripts/live_probe.js           # 真实在线数据源探针（需联网）
+```
+
+## 更新线上 Web 版本
+
+```bash
+# 1. 同步数据（可选，拉最新版后需重新生成 Flutter 资产）
+python flutter_app/scripts/sync_data.py
+
+# 2. 重新构建 Web 到 docs/（base-href 必须保持 /hextech-aram-assistant/）
+cd flutter_app
+dart <flutter_dir>/bin/cache/flutter_tools.snapshot build web --release \
+  --no-wasm-dry-run --base-href=/hextech-aram-assistant/ \
+  -o <项目根>/docs
+cd ..
+
+# 3. 提交并推送，GitHub Pages 自动重新发布（约 1-2 分钟）
+git add -A && git commit -m "update web" && git push origin main
 ```
